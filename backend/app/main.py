@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .database import engine, Base
-from .routers import sessions, clips, analysis, training
+from .routers import sessions, clips, analysis, training, supervised
 
 UPLOADS_DIR = Path("uploads")
 
@@ -39,6 +39,7 @@ app.include_router(sessions.router)
 app.include_router(clips.router)
 app.include_router(analysis.router)
 app.include_router(training.router)
+app.include_router(supervised.router)
 
 app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 

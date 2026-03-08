@@ -25,6 +25,16 @@ export const deleteClip = (id) => api.delete(`/clips/${id}`).then((r) => r.data)
 export const analyzeBasketballClip = (clipId) => api.post(`/clips/${clipId}/analyze`).then((r) => r.data);
 export const getAnalysis = (clipId) => api.get(`/clips/${clipId}/analysis`).then((r) => r.data);
 
+// Supervised Review
+export const startSupervisedReview = (clipId) => api.post(`/api/supervised/start/${clipId}`).then((r) => r.data);
+export const getStatSheet = (sheetId) => api.get(`/api/supervised/sheet/${sheetId}`).then((r) => r.data);
+export const reviewEvent = (eventId, data) => api.put(`/api/supervised/events/${eventId}`, data).then((r) => r.data);
+export const addManualEvent = (sheetId, data) => api.post(`/api/supervised/events/${sheetId}`, data).then((r) => r.data);
+export const deleteEvent = (eventId) => api.delete(`/api/supervised/events/${eventId}`).then((r) => r.data);
+export const compileStatSheet = (sheetId) => api.post(`/api/supervised/compile/${sheetId}`).then((r) => r.data);
+export const getStatSheets = (sport) => api.get('/api/supervised/sheets', { params: { sport } }).then((r) => r.data);
+export const getLatestSheet = (clipId) => api.get(`/api/supervised/sheets/${clipId}/latest`).then((r) => r.data);
+
 // Training Focus
 export const generateTrainingFocus = (sport) => api.post('/training/generate', { sport }).then((r) => r.data);
 export const getCurrentTraining = (sport) => api.get('/training/current', { params: { sport } }).then((r) => r.data);

@@ -6,11 +6,14 @@ import {
   Film,
   Target,
   Trophy,
+  BarChart3,
 } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import LogSession from './pages/LogSession';
 import Clips from './pages/Clips';
 import TrainingFocus from './pages/TrainingFocus';
+import SupervisedReview from './pages/SupervisedReview';
+import StatSheets from './pages/StatSheets';
 import SportToggle from './components/SportToggle';
 
 export default function App() {
@@ -45,6 +48,10 @@ export default function App() {
             <Target size={20} />
             <span>Training Focus</span>
           </NavLink>
+          <NavLink to="/stat-sheets" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <BarChart3 size={20} />
+            <span>Stat Sheets</span>
+          </NavLink>
         </nav>
 
         <div className="sidebar-footer">
@@ -58,6 +65,8 @@ export default function App() {
           <Route path="/log" element={<LogSession sport={sport} />} />
           <Route path="/clips" element={<Clips sport={sport} />} />
           <Route path="/training" element={<TrainingFocus sport={sport} />} />
+          <Route path="/review/:clipId" element={<SupervisedReview />} />
+          <Route path="/stat-sheets" element={<StatSheets sport={sport} />} />
         </Routes>
       </main>
     </div>

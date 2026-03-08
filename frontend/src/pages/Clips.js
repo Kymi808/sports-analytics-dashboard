@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Upload, Play, ArrowLeft, Trash2, Sparkles, X, Film,
+  Upload, Play, ArrowLeft, Trash2, Sparkles, X, Film, BarChart3,
 } from 'lucide-react';
 import VideoPlayer from '../components/VideoPlayer';
 import {
   uploadClip, getClips, getClip, addPlayTag, deletePlayTag, deleteClip,
-  analyzeBasketballClip, getAnalysis,
+  analyzeBasketballClip, getAnalysis, getLatestSheet,
 } from '../api';
 
 const TAG_TYPES = [
@@ -32,7 +33,9 @@ export default function Clips({ sport }) {
   const [tagForm, setTagForm] = useState({ tag_type: 'Shot', description: '', timestamp: 0 });
   const [showTagForm, setShowTagForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [clipSheetStatus, setClipSheetStatus] = useState({});
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const fetchClips = useCallback(async () => {
     try {
@@ -48,6 +51,21 @@ export default function Clips({ sport }) {
   useEffect(() => {
     fetchClips();
   }, [fetchClips]);
+
+  // Check which clips have finalized stat sheets
+  useEffect(() => {
+    if (clips.length === 0) return;
+    clips.forEach(async (clip) => {
+      try {
+        const sheet = await getLatestSheet(clip.id);
+        if (sheet && sheet.status) {
+          setClipSheetStatus((prev) => ({ ...prev, [clip.id]: sheet.status }));
+        }
+      } catch {
+        // no sheet for this clip
+      }
+    });
+  }, [clips]);
 
   const handleUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -149,6 +167,9 @@ export default function Clips({ sport }) {
             <ArrowLeft size={16} /> Back
           </button>
           <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-primary" onClick={() => navigate(`/review/${selectedClip.id}`)}>
+              <BarChart3 size={16} /> Review Stats
+            </button>
             {sport === 'basketball' && (
               <button className="btn btn-orange" onClick={handleAnalyze} disabled={analyzing}>
                 <Sparkles size={16} />
@@ -332,13 +353,28 @@ export default function Clips({ sport }) {
                   </div>
                 </div>
                 <div className="clip-info">
-                  <div className="clip-name">{clip.filename || `Clip ${clip.id}`}</div>
+                  <div className="clip-name">
+                    {clip.filename || `Clip ${clip.id}`}
+                    {clipSheetStatus[clip.id] === 'finalized' && (
+                      <span className="clip-stats-badge">Stats</span>
+                    )}
+                  </div>
                   <div className="clip-meta">
                     {clip.created_at
                       ? new Date(clip.created_at).toLocaleDateString()
                       : ''}
                     {clip.duration ? ` | ${Math.round(clip.duration)}s` : ''}
                   </div>
+                  <button
+                    className="btn btn-sm btn-primary"
+                    style={{ marginTop: 8, width: '100%' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/review/${clip.id}`);
+                    }}
+                  >
+                    <BarChart3 size={12} /> Review Stats
+                  </button>
                 </div>
               </div>
             );

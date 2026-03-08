@@ -70,10 +70,18 @@ def _detect_shot_attempt(landmarks) -> dict:
         )
 
         if wrist_above and elbow_angle > 140:
+            # Compute confidence score (0.0-1.0) based on elbow angle strength
+            # and landmark visibility. Elbow angle of 180 is perfect extension;
+            # 140 is the minimum threshold.
+            angle_score = min(1.0, (elbow_angle - 140) / 40.0)  # 0 at 140, 1 at 180
+            avg_visibility = (shoulder.visibility + elbow.visibility + wrist.visibility) / 3.0
+            confidence = round(0.6 * angle_score + 0.4 * avg_visibility, 3)
+
             return {
                 "side": side,
                 "elbow_angle": round(elbow_angle, 1),
                 "wrist_height_relative": round(shoulder.y - wrist.y, 3),
+                "confidence": confidence,
             }
 
     return None
